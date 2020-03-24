@@ -1,0 +1,53 @@
+/*
+Temperature Sensor Using Particle Argon - By Timothy Moore
+-----------------------------------------------------------
+
+This code is the basics needed to create a working thermometer using a Particle Argon
+and a DHT11 Temperature and Humidity Sensor. We have included the Adafruit Library as 
+it streamlines the process and allows us to run the sensor of one of our digital pins.
+The library can be found by searching for Adafruit_DHT.h in the Libraries tab found in 
+the Particle Web IDE.
+*/
+
+// This #include statement was automatically added by the Particle IDE.
+#include <Adafruit_DHT.h>
+
+// Pin the device is connected to
+#define DHTPIN D6
+
+//  Device we are using
+#define DHTTYPE DHT11
+
+//  Sets the pin and sensor type for this system.
+DHT dht(DHTPIN, DHTTYPE);
+
+
+void setup() { 
+    
+    //  Tells the sensor to start recording. 
+    dht.begin();
+    
+    // Subscribe to the webhook response event
+    Particle.subscribe("hook-response/get_temp", myHandler, MY_DEVICES);
+}
+
+    // Handle the webhook response
+void myHandler(const char *event, const char *data) {
+
+}
+
+// Function to return the temperature as a float value
+float readTemperature()    {
+    return dht.getTempCelcius();
+}
+
+
+void loop() {
+    
+    // Get some data
+    String data = String(readTemperature());
+    // Trigger the webhook
+    Particle.publish("Temp", data, PRIVATE);
+    // Wait 30 seconds
+    delay(30000);
+}
